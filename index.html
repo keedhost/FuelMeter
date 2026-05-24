@@ -1,0 +1,1666 @@
+<!DOCTYPE html>
+<html lang="uk" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Fuel Meter — Калькулятор витрати палива та вартості поїздки</title>
+
+<!-- ═══════════════════  SEO  ═══════════════════ -->
+<meta name="description" content="Безкоштовний онлайн-калькулятор витрати палива та вартості поїздки для України. Розрахуйте літри, вартість у гривнях та кількість зупинок на АЗС — з картою маршруту і актуальними цінами на А-92, А-95, А-98, дизель, автогаз.">
+<meta name="keywords" content="калькулятор витрати палива, розхід палива, вартість поїздки, ціни на бензин Україна, А-92 А-95 А-98 дизель автогаз, скільки палива на 100 км, маршрут Україна, паливний калькулятор">
+<meta name="author" content="Fuel Meter">
+<meta name="robots" content="index, follow">
+<meta name="theme-color" content="#070C18">
+<!-- TODO: замініть на ваш реальний URL після деплою -->
+<link rel="icon" type="image/svg+xml" href="logo.svg">
+<link rel="canonical" href="https://keedhost.github.io/FuelMeter/">
+
+<!-- ═══════════════════  OPEN GRAPH  (Facebook · LinkedIn · Telegram · WhatsApp · Viber)  ═══════════════════ -->
+<meta property="og:type"        content="website">
+<meta property="og:url"         content="https://keedhost.github.io/FuelMeter/">
+<meta property="og:site_name"   content="Fuel Meter">
+<meta property="og:locale"      content="uk_UA">
+<meta property="og:title"       content="Fuel Meter — Калькулятор витрати палива 🔥">
+<meta property="og:description" content="Введіть маршрут, розхід і тип палива — отримайте вартість поїздки з актуальними цінами в Україні. Безкоштовно, без реклами.">
+<meta property="og:image"       content="https://keedhost.github.io/FuelMeter/og-image.png">
+<meta property="og:image:type"  content="image/png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt"   content="Fuel Meter — інтерфейс калькулятора з картою маршруту">
+
+<!-- ═══════════════════  TWITTER / X CARD  ═══════════════════ -->
+<meta name="twitter:card"        content="summary_large_image">
+<meta name="twitter:title"       content="Fuel Meter — Калькулятор витрати палива">
+<meta name="twitter:description" content="Розрахуйте вартість поїздки, витрату палива та кількість заправок — з картою та актуальними цінами в Україні.">
+<meta name="twitter:image"       content="https://keedhost.github.io/FuelMeter/og-image.png">
+<meta name="twitter:image:alt"   content="Fuel Meter — калькулятор палива">
+
+<!-- ═══════════════════  STRUCTURED DATA (Google Rich Results)  ═══════════════════ -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "Fuel Meter",
+  "url": "https://keedhost.github.io/FuelMeter/",
+  "description": "Безкоштовний калькулятор витрати палива та вартості поїздки для України з картою маршруту і актуальними цінами.",
+  "applicationCategory": "UtilityApplication",
+  "operatingSystem": "Web",
+  "inLanguage": "uk",
+  "isAccessibleForFree": true,
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "UAH"
+  },
+  "featureList": [
+    "Розрахунок витрати палива (л/100 км)",
+    "Розрахунок вартості поїздки в гривнях",
+    "Підтримка А-92, А-95, А-98, дизель, автогаз",
+    "Актуальні ціни на паливо з minfin.com.ua",
+    "Маршрут на карті з проміжними точками",
+    "Розрахунок кількості зупинок на АЗС",
+    "Зворотний розрахунок: за бюджетом або літрами"
+  ]
+}
+</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@300;400;500;600;700&family=Barlow:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<style>
+/* ══════════════════════════════════════  DARK THEME  ══════════════════════════════════════ */
+:root {
+  --bg:       #070C18;
+  --bg2:      #0C1221;
+  --card:     #0F1629;
+  --border:   rgba(255,255,255,0.07);
+  --border2:  rgba(232,93,4,0.2);
+  --orange:   #E85D04;
+  --odim:     rgba(232,93,4,0.12);
+  --green:    #00D47E;
+  --text:     #ECF0FF;
+  --dim:      rgba(236,240,255,0.45);
+  --muted:    rgba(236,240,255,0.2);
+  --radius:   18px;
+  --input-bg: rgba(255,255,255,0.04);
+  --res-bg:   rgba(255,255,255,0.025);
+  --sug-bg:   #141c30;
+  --sug-sep:  rgba(255,255,255,0.05);
+  --h1-start: #ffffff;
+  --map-bg:   #070C18;
+  --icon-sun: 0;
+  --icon-moon:1;
+  --tr: background 0.28s ease, color 0.28s ease, border-color 0.28s ease, box-shadow 0.28s ease;
+}
+/* ══════════════════════════════════════  LIGHT THEME  ══════════════════════════════════════ */
+[data-theme="light"] {
+  --bg:       #F0F2F8;
+  --bg2:      #E5E8F0;
+  --card:     #FFFFFF;
+  --border:   rgba(0,0,0,0.09);
+  --border2:  rgba(210,75,0,0.22);
+  --orange:   #C94E00;
+  --odim:     rgba(210,75,0,0.09);
+  --green:    #00A862;
+  --text:     #1A1D2E;
+  --dim:      rgba(26,29,46,0.55);
+  --muted:    rgba(26,29,46,0.32);
+  --input-bg: rgba(0,0,0,0.04);
+  --res-bg:   rgba(0,0,0,0.03);
+  --sug-bg:   #FFFFFF;
+  --sug-sep:  rgba(0,0,0,0.06);
+  --h1-start: #1A1D2E;
+  --map-bg:   #e8eaf0;
+  --icon-sun: 1;
+  --icon-moon:0;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+body {
+  font-family: 'Barlow', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+  transition: var(--tr);
+}
+
+body::before {
+  content: '';
+  position: fixed; inset: 0; pointer-events: none; z-index: 0;
+  background:
+    radial-gradient(ellipse 60% 40% at 15% 10%, rgba(232,93,4,0.07) 0%, transparent 70%),
+    radial-gradient(ellipse 40% 60% at 85% 85%, rgba(0,100,200,0.06) 0%, transparent 70%);
+}
+[data-theme="light"] body::before {
+  background:
+    radial-gradient(ellipse 60% 40% at 15% 10%, rgba(210,75,0,0.06) 0%, transparent 70%),
+    radial-gradient(ellipse 40% 60% at 85% 85%, rgba(0,100,200,0.04) 0%, transparent 70%);
+}
+body::after {
+  content: '';
+  position: fixed; inset: 0; pointer-events: none; z-index: 0;
+  background-image:
+    linear-gradient(rgba(232,93,4,0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(232,93,4,0.025) 1px, transparent 1px);
+  background-size: 48px 48px;
+}
+[data-theme="light"] body::after {
+  background-image:
+    linear-gradient(rgba(0,0,0,0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,0,0,0.045) 1px, transparent 1px);
+}
+
+/* ── Layout ── */
+.app {
+  position: relative; z-index: 1;
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 0 18px 56px;
+}
+
+/* ── Header ── */
+.header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 30px 0 28px;
+}
+.logo-wrap { width: 52px; height: 52px; flex-shrink: 0; }
+.logo-wrap svg { width: 52px; height: 52px; }
+.header-text { flex: 1; min-width: 0; }
+.header-text h1 {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 32px;
+  letter-spacing: 0.08em;
+  line-height: 1;
+  background: linear-gradient(135deg, var(--h1-start) 30%, var(--orange) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.header-text p {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--dim);
+  margin-top: 2px;
+}
+
+/* ── Header buttons (theme + share) ── */
+.header-actions { display: flex; gap: 8px; flex-shrink: 0; }
+
+.theme-btn, .share-btn {
+  flex-shrink: 0;
+  width: 42px; height: 42px;
+  border-radius: 12px;
+  border: 1px solid var(--border2);
+  background: var(--odim);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  transition: var(--tr), transform .15s;
+}
+.theme-btn:hover, .share-btn:hover { transform: scale(1.07); }
+.theme-btn:active, .share-btn:active { transform: scale(0.96); }
+.share-btn svg { width: 18px; height: 18px; color: var(--orange); transition: color .28s; }
+.share-btn.copied svg { color: var(--green); }
+
+/* ── Toast ── */
+.toast {
+  position: fixed;
+  bottom: 28px; left: 50%;
+  transform: translateX(-50%) translateY(12px);
+  background: var(--card);
+  border: 1px solid var(--border2);
+  border-radius: 12px;
+  padding: 10px 20px;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 14px; font-weight: 600; letter-spacing: 0.05em;
+  color: var(--green);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .22s ease, transform .22s ease;
+  z-index: 99999;
+  white-space: nowrap;
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+.theme-btn svg {
+  width: 20px; height: 20px;
+  position: absolute;
+  transition: opacity .25s, transform .3s;
+}
+.icon-sun  { color: #E8A020; opacity: var(--icon-sun);  transform: rotate(calc((1 - var(--icon-sun))  * 90deg)); }
+.icon-moon { color: var(--orange); opacity: var(--icon-moon); transform: rotate(0deg); }
+
+/* ── Card ── */
+.card {
+  background: var(--card);
+  border: 1px solid var(--border2);
+  border-radius: var(--radius);
+  padding: 24px;
+  position: relative;
+  overflow: hidden;
+  transition: var(--tr);
+}
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(232,93,4,0.35), transparent);
+}
+[data-theme="light"] .card::before {
+  background: linear-gradient(90deg, transparent, rgba(210,75,0,0.2), transparent);
+}
+
+.section-label {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--orange);
+  margin-bottom: 18px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.section-label::before {
+  content: '';
+  width: 16px; height: 2px;
+  background: var(--orange);
+  border-radius: 2px;
+}
+
+/* ── Inputs ── */
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+.input-field { display: flex; flex-direction: column; gap: 7px; }
+.input-field label {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--dim);
+  font-weight: 500;
+}
+
+.input-wrap { position: relative; display: flex; align-items: center; }
+.input-wrap input {
+  width: 100%;
+  background: var(--input-bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 50px 12px 14px;
+  color: var(--text);
+  font-family: 'Space Mono', monospace;
+  font-size: 15px;
+  outline: none;
+  transition: var(--tr);
+  -webkit-appearance: none;
+  -moz-appearance: textfield;
+}
+.input-wrap input:focus {
+  border-color: var(--orange);
+  box-shadow: 0 0 0 3px var(--odim);
+}
+.input-wrap input::placeholder {
+  font-family: 'Barlow', sans-serif;
+  font-size: 14px;
+  color: var(--muted);
+}
+.unit-badge {
+  position: absolute; right: 12px;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 11px; letter-spacing: 0.07em;
+  color: var(--muted);
+  pointer-events: none;
+  text-transform: uppercase;
+}
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; }
+
+/* ── Fuel type header + fetch ── */
+.fuel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+.fuel-header .section-label { margin-bottom: 0; }
+
+.fetch-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 11px;
+  border: 1px solid var(--border2);
+  border-radius: 7px;
+  background: var(--odim);
+  color: var(--orange);
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background .18s, transform .12s;
+  white-space: nowrap;
+}
+.fetch-btn:hover:not(:disabled) { background: rgba(232,93,4,0.2); }
+.fetch-btn:active:not(:disabled) { transform: scale(.96); }
+.fetch-btn:disabled { opacity: .5; cursor: not-allowed; }
+.fetch-btn svg { width: 13px; height: 13px; flex-shrink: 0; }
+
+.prices-meta {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  min-height: 15px;
+  margin-bottom: 14px;
+  transition: color .2s;
+}
+.prices-meta.ok  { color: var(--green); }
+.prices-meta.err { color: #E05555; }
+
+/* ── Fuel pills ── */
+.fuel-pills { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+.pill {
+  padding: 7px 14px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--dim);
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 13px; font-weight: 700; letter-spacing: 0.07em;
+  cursor: pointer;
+  transition: all .18s;
+  text-transform: uppercase;
+}
+.pill:hover { border-color: var(--border2); color: var(--text); }
+.pill.on { background: var(--odim); border-color: var(--orange); color: var(--orange); }
+
+/* ── Calc mode selector ── */
+.calc-mode-nav {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 20px;
+}
+.cmode-btn {
+  flex: 1;
+  padding: 9px 10px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--input-bg);
+  color: var(--dim);
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 13px; font-weight: 600; letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: var(--tr);
+  display: flex; align-items: center; justify-content: center; gap: 5px;
+}
+.cmode-btn svg { width: 11px; height: 11px; opacity: .6; flex-shrink: 0; }
+.cmode-btn.on { background: var(--odim); border-color: var(--border2); color: var(--orange); }
+.cmode-btn.on svg { opacity: 1; }
+.cmode-btn:not(.on):hover { border-color: var(--border2); color: var(--text); }
+
+.divider { height: 1px; background: var(--border); margin: 20px 0; }
+
+/* ── Results row (2 or 3 boxes) ── */
+.dual-results {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 14px;
+  margin-top: 22px;
+  padding-top: 22px;
+  border-top: 1px solid var(--border);
+}
+.res-box {
+  background: var(--res-bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px 16px;
+  transition: var(--tr);
+}
+.res-box .rl {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--dim); margin-bottom: 6px;
+}
+.res-box .rv { font-family: 'Space Mono', monospace; font-size: 28px; font-weight: 700; line-height: 1; }
+.res-box .rv.fuel-color  { color: var(--orange); }
+.res-box .rv.cost-color  { color: #D4820A; }
+.res-box .rv.stops-color { color: var(--green); }
+[data-theme="dark"] .res-box .rv.fuel-color  { text-shadow: 0 0 20px rgba(232,93,4,0.4); }
+[data-theme="dark"] .res-box .rv.cost-color  { color: #FFB347; text-shadow: 0 0 20px rgba(255,179,71,0.3); }
+[data-theme="dark"] .res-box .rv.stops-color { text-shadow: 0 0 20px rgba(0,212,126,0.35); }
+.res-box .rv.empty-v { color: var(--muted); }
+.res-box .ru { font-family: 'Barlow Condensed', sans-serif; font-size: 12px; color: var(--muted); margin-left: 3px; }
+
+@keyframes numBlink {
+  0%   { opacity: .4; transform: scale(.97); }
+  50%  { opacity: 1;  transform: scale(1.02); }
+  100% { opacity: 1;  transform: scale(1); }
+}
+
+/* ══════════════════════════════════════
+   COLLAPSIBLE ROUTE BLOCK
+══════════════════════════════════════ */
+.route-collapse {
+  margin-top: 14px;
+  border: 1px solid var(--border2);
+  border-radius: var(--radius);
+  overflow: hidden;
+  transition: border-color .28s;
+}
+
+.rc-header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 17px 24px;
+  background: var(--card);
+  border: none;
+  cursor: pointer;
+  position: relative;
+  transition: background .2s;
+}
+.rc-header::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(232,93,4,0.35), transparent);
+}
+.rc-header:hover { background: color-mix(in srgb, var(--card) 85%, var(--orange)); }
+
+.rc-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text);
+}
+.rc-title svg { width: 16px; height: 16px; color: var(--orange); flex-shrink: 0; }
+
+.rc-chevron {
+  width: 18px; height: 18px;
+  color: var(--dim);
+  flex-shrink: 0;
+  transition: transform .35s cubic-bezier(.4,0,.2,1), color .2s;
+}
+.route-collapse.open .rc-chevron { transform: rotate(180deg); color: var(--orange); }
+
+/* smooth height via grid rows trick */
+.rc-body {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows .38s cubic-bezier(.4,0,.2,1);
+  background: var(--card);
+}
+.route-collapse.open .rc-body { grid-template-rows: 1fr; }
+
+.rc-inner {
+  overflow: hidden;
+  /* padding animates with a small delay so it doesn't clip content */
+  padding: 0 24px;
+  transition: padding .38s cubic-bezier(.4,0,.2,1);
+}
+.route-collapse.open .rc-inner { padding: 22px 24px 24px; }
+
+/* ── Route inputs ── */
+.route-inputs {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  position: relative;
+  padding-left: 28px;
+}
+.route-line {
+  position: absolute;
+  left: 5px; top: 20px; bottom: 20px;
+  width: 2px;
+  background: linear-gradient(to bottom, var(--green), color-mix(in srgb, var(--orange) 60%, transparent));
+  border-radius: 2px;
+}
+.ri-row { position: relative; display: flex; align-items: center; }
+.rdot {
+  position: absolute; left: -25px;
+  width: 10px; height: 10px;
+  border-radius: 50%; z-index: 2;
+}
+.rdot.s  { background: var(--green);  box-shadow: 0 0 8px rgba(0,212,126,0.5); }
+.rdot.e  { background: var(--orange); box-shadow: 0 0 8px rgba(232,93,4,0.5); }
+.rdot.wp { background: #FFB347; box-shadow: 0 0 8px rgba(255,179,71,0.5); }
+
+.rm-wp-btn {
+  flex-shrink: 0;
+  width: 28px; height: 28px;
+  margin-left: 8px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--muted);
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: border-color .18s, color .18s, background .18s;
+}
+.rm-wp-btn:hover { border-color: #E05555; color: #E05555; background: rgba(224,85,85,0.1); }
+
+.add-wp-btn {
+  width: 100%;
+  display: flex; align-items: center; justify-content: center;
+  gap: 6px;
+  padding: 8px;
+  margin-top: 10px;
+  border: 1px dashed var(--border2);
+  border-radius: 10px;
+  background: transparent;
+  color: var(--orange);
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 12px; font-weight: 700; letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  opacity: 0.7;
+  transition: background .18s, opacity .18s;
+}
+.add-wp-btn:hover { background: var(--odim); opacity: 1; }
+.add-wp-btn svg { width: 14px; height: 14px; }
+
+.route-in {
+  width: 100%;
+  background: var(--input-bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 14px;
+  color: var(--text);
+  font-family: 'Barlow', sans-serif;
+  font-size: 14px;
+  outline: none;
+  transition: var(--tr);
+}
+.route-in:focus { border-color: var(--orange); box-shadow: 0 0 0 3px var(--odim); }
+.route-in::placeholder { color: var(--muted); }
+
+/* Suggestions */
+.sug-wrap { position: relative; width: 100%; }
+.sug-box {
+  display: none;
+  position: fixed;
+  background: var(--sug-bg);
+  border: 1px solid var(--border2);
+  border-radius: 10px;
+  overflow: hidden;
+  z-index: 9999;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.22);
+}
+.sug-item {
+  padding: 10px 14px;
+  font-size: 13px;
+  cursor: pointer;
+  border-bottom: 1px solid var(--sug-sep);
+  transition: background .12s;
+  line-height: 1.4;
+}
+.sug-item:last-child { border-bottom: none; }
+.sug-item:hover { background: var(--odim); }
+.sug-item strong { color: var(--text); font-weight: 500; display: block; }
+.sug-item small  { color: var(--muted); font-size: 11px; }
+
+/* ── Map ── */
+#map {
+  display: none;
+  height: 360px;
+  border-radius: 12px;
+  margin-top: 16px;
+  border: 1px solid var(--border2);
+  overflow: hidden;
+}
+.leaflet-container { background: var(--map-bg); }
+
+/* ── Route results ── */
+#route-results { display: none; margin-top: 14px; }
+.stat-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.stat {
+  background: var(--res-bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px 12px;
+  text-align: center;
+  transition: var(--tr);
+}
+.stat .sv { font-family: 'Space Mono', monospace; font-size: 22px; font-weight: 700; color: var(--orange); line-height: 1; }
+.stat .sl { font-family: 'Barlow Condensed', sans-serif; font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin-top: 6px; }
+
+/* ── Button ── */
+.btn {
+  width: 100%; padding: 14px; margin-top: 16px;
+  background: var(--orange);
+  border: none; border-radius: 12px;
+  color: #fff;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 15px; font-weight: 700;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  cursor: pointer;
+  transition: transform .15s, box-shadow .15s, opacity .2s, background .28s;
+  box-shadow: 0 4px 24px rgba(232,93,4,0.3);
+}
+.btn:hover  { transform: translateY(-1px); box-shadow: 0 6px 28px rgba(232,93,4,0.4); }
+.btn:active { transform: translateY(0); }
+.btn:disabled { opacity: .45; cursor: not-allowed; transform: none; }
+
+/* ── Status ── */
+.status {
+  font-size: 13px; padding: 10px 14px;
+  border-radius: 8px; margin-top: 12px;
+  font-family: 'Barlow', sans-serif;
+}
+.status.err { background: rgba(255,59,48,.1); border: 1px solid rgba(255,59,48,.3); color: #E05555; }
+.status.inf { background: var(--odim); border: 1px solid var(--border2); color: var(--dim); }
+
+/* spinner */
+.spin {
+  display: inline-block;
+  width: 16px; height: 16px;
+  border: 2px solid rgba(255,255,255,.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: rot .65s linear infinite;
+  vertical-align: middle;
+  margin-right: 6px;
+}
+@keyframes rot { to { transform: rotate(360deg); } }
+
+/* ── Responsive ── */
+@media (max-width: 580px) {
+  .app { padding: 0 14px 48px; }
+  .header { padding: 22px 0 20px; }
+  .header-text h1 { font-size: 26px; }
+  .grid-2 { grid-template-columns: 1fr; }
+  .dual-results { grid-template-columns: 1fr; }
+  .res-box .rv { font-size: 24px; }
+  #map { height: 260px; }
+  .stat-row { gap: 8px; }
+  .stat .sv { font-size: 17px; }
+  .theme-btn, .share-btn { width: 38px; height: 38px; }
+  .rc-header { padding: 15px 18px; }
+  .rc-inner { padding: 0 18px; }
+  .route-collapse.open .rc-inner { padding: 18px 18px 20px; }
+}
+@media (max-width: 360px) {
+  .pill { font-size: 12px; padding: 6px 10px; }
+}
+
+/* ── Footer ── */
+.footer {
+  position: relative; z-index: 1;
+  margin-top: 40px;
+  padding: 24px 0 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+  transition: var(--tr);
+}
+.footer::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent 0%, var(--orange) 30%, rgba(232,93,4,0.4) 70%, transparent 100%);
+  opacity: 0.55;
+}
+.footer-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.footer-logo {
+  width: 30px; height: 30px;
+  border-radius: 8px;
+  flex-shrink: 0;
+  opacity: 0.85;
+  transition: opacity .2s;
+}
+.footer-left:hover .footer-logo { opacity: 1; }
+.footer-brand-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+.footer-brand {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 15px;
+  letter-spacing: 0.1em;
+  color: var(--orange);
+  line-height: 1;
+}
+.footer-copy {
+  font-family: 'Space Mono', monospace;
+  font-size: 9px;
+  color: var(--muted);
+  letter-spacing: 0.04em;
+  line-height: 1;
+}
+.footer-links {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.footer-sep {
+  width: 3px; height: 3px;
+  border-radius: 50%;
+  background: var(--muted);
+  flex-shrink: 0;
+}
+.footer-link.mit:hover {
+  border-color: rgba(0, 212, 126, 0.4);
+  color: var(--green);
+  box-shadow: 0 4px 16px rgba(0,212,126,0.1);
+}
+.footer-link {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: var(--dim);
+  text-decoration: none;
+  padding: 5px 11px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--input-bg);
+  transition: var(--tr), transform .15s;
+  white-space: nowrap;
+}
+.footer-link svg { width: 14px; height: 14px; flex-shrink: 0; }
+.footer-link:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.18);
+}
+.footer-link.linkedin:hover {
+  border-color: rgba(10,102,194,0.5);
+  color: #0A66C2;
+  box-shadow: 0 4px 16px rgba(10,102,194,0.15);
+}
+.footer-link.github:hover {
+  border-color: var(--border2);
+  color: var(--orange);
+  box-shadow: 0 4px 16px rgba(232,93,4,0.12);
+}
+@media (max-width: 600px) {
+  .footer { flex-direction: column; align-items: flex-start; gap: 14px; }
+  .footer-links { gap: 6px; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- ── HEADER ── -->
+<header class="header">
+  <div class="logo-wrap">
+    <svg viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect width="56" height="56" rx="13" fill="#E85D04"/>
+      <rect x="9" y="8" width="23" height="37" rx="5" fill="white"/>
+      <rect x="13" y="12" width="15" height="10" rx="2.5" fill="#E85D04"/>
+      <rect x="15" y="14" width="9" height="2.5" rx="1.25" fill="white" opacity=".35"/>
+      <rect x="15" y="18" width="6" height="2" rx="1" fill="white" opacity=".25"/>
+      <rect x="13" y="26" width="15" height="2.5" rx="1.25" fill="#E85D04"/>
+      <rect x="13" y="30" width="9.5" height="2.5" rx="1.25" fill="#E85D04"/>
+      <rect x="13" y="34" width="12" height="2.5" rx="1.25" fill="#E85D04"/>
+      <path d="M32 13.5 L44 13.5 Q47 13.5 47 16.5 L47 28 Q47 32 43 32 L40 32 Q36 32 36 28 L36 21 Q36 18.5 33 18.5 L32 18.5 Z" fill="white"/>
+      <path d="M40.5 32 L42.5 32 L43.5 39 Q43.5 41 42 41 Q40.5 41 40.5 39 Z" fill="white"/>
+      <path d="M42 41 C42 41 40 43.5 40 44.8 C40 46 40.9 47 42 47 C43.1 47 44 46 44 44.8 C44 43.5 42 41 42 41 Z" fill="white"/>
+      <rect x="7" y="45" width="27" height="4" rx="2" fill="white"/>
+    </svg>
+  </div>
+  <div class="header-text">
+    <h1>Fuel Meter</h1>
+    <p>Розрахунок витрати палива та вартості поїздки</p>
+  </div>
+  <div class="header-actions">
+    <button class="share-btn" id="shareBtn" onclick="shareCalc()" title="Поділитись розрахунком">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+        <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+      </svg>
+    </button>
+    <button class="theme-btn" onclick="toggleTheme()" title="Змінити тему">
+      <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="5"/>
+        <line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/>
+        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+        <line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/>
+        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+      </svg>
+      <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+      </svg>
+    </button>
+  </div>
+</header>
+
+<div class="toast" id="toast"></div>
+
+<!-- ════════════════════════════════════
+     КАЛЬКУЛЯТОР
+════════════════════════════════════ -->
+<div class="card">
+  <div class="section-label">Параметри поїздки</div>
+
+  <div class="calc-mode-nav">
+    <button class="cmode-btn on" onclick="setCalcMode(1)">
+      <span>км</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      <span>л / ₴</span>
+    </button>
+    <button class="cmode-btn" onclick="setCalcMode(2)">
+      <span>₴</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      <span>км</span>
+    </button>
+    <button class="cmode-btn" onclick="setCalcMode(3)">
+      <span>л</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      <span>км</span>
+    </button>
+  </div>
+
+  <div class="grid-2">
+    <div class="input-field" id="c-dist-field">
+      <label>Відстань поїздки</label>
+      <div class="input-wrap">
+        <input type="number" id="c-dist" placeholder="0" min="0" step="1" oninput="doCalc()">
+        <span class="unit-badge">км</span>
+      </div>
+    </div>
+    <div class="input-field" id="c-budget-field" style="display:none">
+      <label>Бюджет поїздки</label>
+      <div class="input-wrap">
+        <input type="number" id="c-budget" placeholder="0" min="0" step="10" oninput="doCalc()">
+        <span class="unit-badge">₴</span>
+      </div>
+    </div>
+    <div class="input-field" id="c-fuelin-field" style="display:none">
+      <label>Доступне паливо</label>
+      <div class="input-wrap">
+        <input type="number" id="c-fuelin" placeholder="0" min="0" step="1" oninput="doCalc()">
+        <span class="unit-badge">л</span>
+      </div>
+    </div>
+    <div class="input-field">
+      <label>Розхід автомобіля</label>
+      <div class="input-wrap">
+        <input type="number" id="c-rate" placeholder="0.0" min="0" step="0.1" oninput="doCalc()">
+        <span class="unit-badge">л/100</span>
+      </div>
+    </div>
+    <div class="input-field">
+      <label>Об'єм бака</label>
+      <div class="input-wrap">
+        <input type="number" id="c-tank" placeholder="0" min="0" step="1" oninput="doCalc()">
+        <span class="unit-badge">л</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="fuel-header">
+    <div class="section-label">Тип та ціна палива</div>
+    <button class="fetch-btn" id="fetchBtn" onclick="fetchPrices()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="23 4 23 10 17 10"/>
+        <polyline points="1 20 1 14 7 14"/>
+        <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+      </svg>
+      <span id="fetchLabel">Актуальні ціни</span>
+    </button>
+  </div>
+  <div class="prices-meta" id="pricesMeta"></div>
+
+  <div class="fuel-pills">
+    <button class="pill on" data-price="53" onclick="pickFuel(this)">А-92</button>
+    <button class="pill"    data-price="57" onclick="pickFuel(this)">А-95</button>
+    <button class="pill"    data-price="63" onclick="pickFuel(this)">А-98</button>
+    <button class="pill"    data-price="55" onclick="pickFuel(this)">Дизель</button>
+    <button class="pill"    data-price="22" onclick="pickFuel(this)">Автогаз</button>
+  </div>
+
+  <div class="input-field">
+    <label>Ціна палива (можна змінити вручну)</label>
+    <div class="input-wrap">
+      <input type="number" id="c-price" value="53" min="0" step="0.5" oninput="doCalc()">
+      <span class="unit-badge">₴/л</span>
+    </div>
+  </div>
+
+  <div class="dual-results">
+    <div class="res-box">
+      <div class="rl" id="c-res-lbl-1">Витрата палива</div>
+      <div>
+        <span class="rv fuel-color empty-v" id="c-fuel">—</span>
+        <span class="ru" id="c-fuel-u"></span>
+      </div>
+    </div>
+    <div class="res-box">
+      <div class="rl" id="c-res-lbl-2">Вартість поїздки</div>
+      <div>
+        <span class="rv cost-color empty-v" id="c-cost">—</span>
+        <span class="ru" id="c-cost-u"></span>
+      </div>
+    </div>
+    <div class="res-box">
+      <div class="rl">Зупинок на АЗС</div>
+      <div>
+        <span class="rv stops-color empty-v" id="c-stops">—</span>
+        <span class="ru" id="c-stops-u"></span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════
+     МАРШРУТ (collapsible)
+════════════════════════════════════ -->
+<div class="route-collapse" id="routeCollapse">
+  <button class="rc-header" onclick="toggleRoute()" aria-expanded="false" aria-controls="routeBody">
+    <div class="rc-title">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="10" r="3"/>
+        <path d="M12 2a8 8 0 0 0-8 8c0 5.25 8 14 8 14s8-8.75 8-14a8 8 0 0 0-8-8z"/>
+      </svg>
+      Маршрут
+    </div>
+    <svg class="rc-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="6 9 12 15 18 9"/>
+    </svg>
+  </button>
+
+  <div class="rc-body" id="routeBody">
+    <div class="rc-inner">
+
+      <div class="route-inputs" id="routeInputs">
+        <div class="route-line"></div>
+        <div class="ri-row" id="ri-from">
+          <div class="rdot s"></div>
+          <div class="sug-wrap">
+            <input type="text" class="route-in" id="r-from" placeholder="Початкова точка" autocomplete="off" oninput="onInput('from')">
+            <div class="sug-box" id="sug-from"></div>
+          </div>
+        </div>
+        <div id="wp-container"></div>
+        <div class="ri-row" id="ri-to">
+          <div class="rdot e"></div>
+          <div class="sug-wrap">
+            <input type="text" class="route-in" id="r-to" placeholder="Кінцева точка" autocomplete="off" oninput="onInput('to')">
+            <div class="sug-box" id="sug-to"></div>
+          </div>
+        </div>
+      </div>
+
+      <button class="add-wp-btn" onclick="addWaypoint()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+        </svg>
+        Додати зупинку
+      </button>
+
+      <button class="btn" id="r-btn" onclick="doRoute()" style="margin-top:10px">Розрахувати маршрут</button>
+      <div id="r-status"></div>
+
+      <div id="map"></div>
+
+      <div id="route-results">
+        <div class="section-label" style="margin-top:20px">Результати маршруту</div>
+        <div class="stat-row">
+          <div class="stat"><div class="sv" id="rs-km">—</div><div class="sl">Відстань (км)</div></div>
+          <div class="stat"><div class="sv" id="rs-lt">—</div><div class="sl">Паливо (л)</div></div>
+          <div class="stat"><div class="sv" id="rs-ua">—</div><div class="sl">Вартість (₴)</div></div>
+        </div>
+      </div>
+
+    </div><!-- rc-inner -->
+  </div><!-- rc-body -->
+</div><!-- route-collapse -->
+
+<!-- ── FOOTER ── -->
+<footer class="footer">
+  <div class="footer-left">
+    <svg class="footer-logo" viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect width="56" height="56" rx="13" fill="#E85D04"/>
+      <rect x="9" y="8" width="23" height="37" rx="5" fill="white"/>
+      <rect x="13" y="12" width="15" height="10" rx="2.5" fill="#E85D04"/>
+      <rect x="13" y="26" width="15" height="2.5" rx="1.25" fill="#E85D04"/>
+      <rect x="13" y="30" width="9.5" height="2.5" rx="1.25" fill="#E85D04"/>
+      <rect x="13" y="34" width="12" height="2.5" rx="1.25" fill="#E85D04"/>
+      <path d="M32 13.5 L44 13.5 Q47 13.5 47 16.5 L47 28 Q47 32 43 32 L40 32 Q36 32 36 28 L36 21 Q36 18.5 33 18.5 L32 18.5 Z" fill="white"/>
+      <path d="M40.5 32 L42.5 32 L43.5 39 Q43.5 41 42 41 Q40.5 41 40.5 39 Z" fill="white"/>
+      <path d="M42 41 C42 41 40 43.5 40 44.8 C40 46 40.9 47 42 47 C43.1 47 44 46 44 44.8 C44 43.5 42 41 42 41 Z" fill="white"/>
+      <rect x="7" y="45" width="27" height="4" rx="2" fill="white"/>
+    </svg>
+    <div class="footer-brand-wrap">
+      <span class="footer-brand">Fuel Meter</span>
+      <span class="footer-copy" id="footer-copy-text">© 2026</span>
+    </div>
+  </div>
+
+  <div class="footer-links">
+    <a class="footer-link linkedin" href="https://www.linkedin.com/in/andriy-kondratyev/" target="_blank" rel="noopener" title="LinkedIn Андрія Кондратьєва">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+      Андрій Кондратьєв
+    </a>
+    <span class="footer-sep"></span>
+    <a class="footer-link mit" href="https://opensource.org/license/mit" target="_blank" rel="noopener" title="MIT License">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 1.5L18.5 9H13V3.5zM6 20V4h5v7h7v9H6zm2-6h8v1.5H8V14zm0 3h8v1.5H8V17zm0-6h3v1.5H8V11z"/></svg>
+      MIT License
+    </a>
+    <span class="footer-sep"></span>
+    <a class="footer-link github" href="https://github.com/keedhost/FuelMeter" target="_blank" rel="noopener" title="Вихідний код на GitHub">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.477 2 12c0 4.418 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.009-.868-.013-1.703-2.782.604-3.369-1.341-3.369-1.341-.454-1.155-1.11-1.462-1.11-1.462-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0 1 12 6.836a9.59 9.59 0 0 1 2.504.337c1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.202 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.579.688.481C19.138 20.163 22 16.418 22 12c0-5.523-4.477-10-10-10z"/></svg>
+      GitHub
+    </a>
+  </div>
+</footer>
+
+</div><!-- .app -->
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+'use strict';
+
+// ══════════════════════════════════════
+//  THEME
+// ══════════════════════════════════════
+const DARK_TILES  = 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
+const LIGHT_TILES = 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
+const TILE_ATTR   = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/">CARTO</a>';
+let tileLayer = null;
+
+function applyTheme(theme) {
+  document.documentElement.setAttribute('data-theme', theme);
+  localStorage.setItem('fm-theme', theme);
+  if (tileLayer) tileLayer.setUrl(theme === 'light' ? LIGHT_TILES : DARK_TILES);
+}
+function toggleTheme() {
+  applyTheme(document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+}
+(function () {
+  const saved = localStorage.getItem('fm-theme');
+  if (saved) applyTheme(saved);
+})();
+
+// ══════════════════════════════════════
+//  КАЛЬКУЛЯТОР
+// ══════════════════════════════════════
+let calcMode = 1;
+
+const CALC_LABELS = {
+  1: ['Витрата палива',  'Вартість поїздки'],
+  2: ['Відстань',        'Витрата палива'],
+  3: ['Відстань',        'Вартість поїздки'],
+};
+
+function setCalcMode(n) {
+  calcMode = n;
+  document.querySelectorAll('.cmode-btn').forEach((b, i) => b.classList.toggle('on', i + 1 === n));
+  document.getElementById('c-dist-field').style.display   = n === 1 ? '' : 'none';
+  document.getElementById('c-budget-field').style.display = n === 2 ? '' : 'none';
+  document.getElementById('c-fuelin-field').style.display = n === 3 ? '' : 'none';
+  document.getElementById('c-res-lbl-1').textContent = CALC_LABELS[n][0];
+  document.getElementById('c-res-lbl-2').textContent = CALC_LABELS[n][1];
+  doCalc();
+}
+
+function stopsLabel(n) {
+  if (n % 100 >= 11 && n % 100 <= 19) return 'зупинок';
+  const last = n % 10;
+  if (last === 1) return 'зупинка';
+  if (last >= 2 && last <= 4) return 'зупинки';
+  return 'зупинок';
+}
+
+function doCalc() {
+  const r    = parseFloat(document.getElementById('c-rate').value);
+  const p    = parseFloat(document.getElementById('c-price').value);
+  const tank = parseFloat(document.getElementById('c-tank').value);
+  const fe   = document.getElementById('c-fuel');
+  const fu   = document.getElementById('c-fuel-u');
+  const ce   = document.getElementById('c-cost');
+  const cu   = document.getElementById('c-cost-u');
+  const se   = document.getElementById('c-stops');
+  const su   = document.getElementById('c-stops-u');
+
+  const clearAll = () => {
+    fe.textContent = '—'; fe.classList.add('empty-v'); fu.textContent = '';
+    ce.textContent = '—'; ce.classList.add('empty-v'); cu.textContent = '';
+    se.textContent = '—'; se.classList.add('empty-v'); su.textContent = '';
+  };
+
+  const calcStops = (distKm) => {
+    if (tank > 0 && r > 0) {
+      const stops = Math.max(0, Math.ceil(distKm / (tank / r * 100)) - 1);
+      se.textContent = stops; se.classList.remove('empty-v'); su.textContent = stopsLabel(stops); flash(se);
+    } else { se.textContent = '—'; se.classList.add('empty-v'); su.textContent = ''; }
+  };
+
+  if (calcMode === 1) {
+    const d = parseFloat(document.getElementById('c-dist').value);
+    if (d > 0 && r > 0) {
+      const L = (d * r / 100).toFixed(2);
+      fe.textContent = L; fe.classList.remove('empty-v'); fu.textContent = 'л'; flash(fe);
+      if (p > 0) {
+        ce.textContent = Math.round(L * p); ce.classList.remove('empty-v'); cu.textContent = '₴'; flash(ce);
+      } else { ce.textContent = '—'; ce.classList.add('empty-v'); cu.textContent = ''; }
+      calcStops(d);
+    } else clearAll();
+
+  } else if (calcMode === 2) {
+    const budget = parseFloat(document.getElementById('c-budget').value);
+    if (budget > 0 && r > 0 && p > 0) {
+      const fuelL  = budget / p;
+      const distKm = fuelL / r * 100;
+      fe.textContent = distKm.toFixed(1); fe.classList.remove('empty-v'); fu.textContent = 'км'; flash(fe);
+      ce.textContent = fuelL.toFixed(2);  ce.classList.remove('empty-v'); cu.textContent = 'л';  flash(ce);
+      calcStops(distKm);
+    } else clearAll();
+
+  } else if (calcMode === 3) {
+    const fuelIn = parseFloat(document.getElementById('c-fuelin').value);
+    if (fuelIn > 0 && r > 0) {
+      const distKm = fuelIn / r * 100;
+      fe.textContent = distKm.toFixed(1); fe.classList.remove('empty-v'); fu.textContent = 'км'; flash(fe);
+      if (p > 0) {
+        ce.textContent = Math.round(fuelIn * p); ce.classList.remove('empty-v'); cu.textContent = '₴'; flash(ce);
+      } else { ce.textContent = '—'; ce.classList.add('empty-v'); cu.textContent = ''; }
+      calcStops(distKm);
+    } else clearAll();
+  }
+}
+
+function pickFuel(btn) {
+  document.querySelectorAll('.pill').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+  document.getElementById('c-price').value = btn.dataset.price;
+  doCalc();
+}
+
+function flash(el) {
+  el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash');
+}
+
+// ══════════════════════════════════════
+//  FETCH FUEL PRICES (minfin.com.ua)
+// ══════════════════════════════════════
+const MINFIN_URL = 'https://index.minfin.com.ua/ua/markets/fuel/';
+const PROXY      = 'https://api.allorigins.win/get?url=';
+const SLUG_MAP   = {
+  '/ua/markets/fuel/a92/': 'А-92',
+  '/ua/markets/fuel/a95/': 'А-95',
+  '/ua/markets/fuel/a96/': 'А-98',
+  '/ua/markets/fuel/dt/' : 'Дизель',
+  '/ua/markets/fuel/lpg/': 'Автогаз',
+};
+
+async function fetchPrices() {
+  const btn   = document.getElementById('fetchBtn');
+  const label = document.getElementById('fetchLabel');
+  const meta  = document.getElementById('pricesMeta');
+
+  btn.disabled = true;
+  label.textContent = 'Завантаження…';
+  meta.textContent  = '';
+  meta.className    = 'prices-meta';
+
+  try {
+    const res  = await fetch(PROXY + encodeURIComponent(MINFIN_URL));
+    if (!res.ok) throw new Error('proxy error');
+    const json = await res.json();
+
+    const doc  = new DOMParser().parseFromString(json.contents, 'text/html');
+    const rows = doc.querySelectorAll('table.line tr');
+    let updated = 0;
+
+    rows.forEach(row => {
+      const link  = row.querySelector('a[href]');
+      const price = row.querySelector('big');
+      if (!link || !price) return;
+      const slug = link.getAttribute('href');
+      const fuel = SLUG_MAP[slug];
+      if (!fuel) return;
+      const val = parseFloat(price.textContent.replace(',', '.'));
+      if (isNaN(val)) return;
+      document.querySelectorAll('.pill').forEach(p => {
+        if (p.textContent.trim() === fuel) p.dataset.price = val;
+      });
+      updated++;
+    });
+
+    if (updated === 0) throw new Error('no data parsed');
+
+    const active = document.querySelector('.pill.on');
+    if (active) { document.getElementById('c-price').value = active.dataset.price; doCalc(); }
+
+    const caption   = doc.querySelector('table.line caption');
+    const dateMatch = caption?.textContent.match(/\d{2}\.\d{2}\.\d{4}/);
+    const dateStr   = dateMatch ? dateMatch[0] : new Date().toLocaleDateString('uk-UA');
+
+    meta.textContent = `✓ Актуально на ${dateStr} · minfin.com.ua`;
+    meta.className   = 'prices-meta ok';
+    label.textContent = 'Оновити ціни';
+
+  } catch(_) {
+    meta.textContent = '✗ Не вдалося завантажити. Введіть ціну вручну.';
+    meta.className   = 'prices-meta err';
+    label.textContent = 'Спробувати знову';
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+// ══════════════════════════════════════
+//  COLLAPSIBLE ROUTE
+// ══════════════════════════════════════
+function toggleRoute() {
+  const block = document.getElementById('routeCollapse');
+  const btn   = block.querySelector('.rc-header');
+  const isOpen = block.classList.toggle('open');
+  btn.setAttribute('aria-expanded', isOpen);
+
+  if (isOpen && map) setTimeout(() => map.invalidateSize(), 400);
+}
+
+// ══════════════════════════════════════
+//  ROUTE — геокодинг та розрахунок
+// ══════════════════════════════════════
+let map = null, routeLine = null;
+let fromLL = null, toLL = null;
+const timers = {};
+const waypointLLs = {};   // { idx: [lat, lon] | null }
+let waypointCount = 0;
+
+const NOM  = 'https://nominatim.openstreetmap.org';
+const OSRM = 'https://router.project-osrm.org/route/v1/driving';
+
+function addWaypoint() {
+  const idx = waypointCount++;
+  waypointLLs[idx] = null;
+
+  const row = document.createElement('div');
+  row.className = 'ri-row';
+  row.id = `ri-wp-${idx}`;
+  row.innerHTML = `
+    <div class="rdot wp"></div>
+    <div class="sug-wrap">
+      <input type="text" class="route-in" id="r-wp-${idx}"
+        placeholder="Проміжна точка" autocomplete="off"
+        oninput="onInput('wp-${idx}')">
+      <div class="sug-box" id="sug-wp-${idx}"></div>
+    </div>
+    <button class="rm-wp-btn" onclick="removeWaypoint(${idx})" title="Видалити">×</button>`;
+
+  document.getElementById('wp-container').appendChild(row);
+  row.querySelector('input').focus();
+}
+
+function removeWaypoint(idx) {
+  const row = document.getElementById(`ri-wp-${idx}`);
+  if (row) row.remove();
+  delete waypointLLs[idx];
+}
+
+function onInput(side) {
+  clearTimeout(timers[side]);
+  if      (side === 'from')           fromLL = null;
+  else if (side === 'to')             toLL   = null;
+  else if (side.startsWith('wp-'))    waypointLLs[parseInt(side.slice(3))] = null;
+  timers[side] = setTimeout(() => fetchSug(side), 400);
+}
+
+function positionSug(inp, box) {
+  const r = inp.getBoundingClientRect();
+  box.style.top   = (r.bottom + 4) + 'px';
+  box.style.left  = r.left + 'px';
+  box.style.width = r.width + 'px';
+}
+
+async function fetchSug(side) {
+  const inp = document.getElementById('r-' + side);
+  const box = document.getElementById('sug-' + side);
+  const q   = inp.value.trim();
+  if (q.length < 3) { box.style.display = 'none'; return; }
+  try {
+    const res  = await fetch(`${NOM}/search?format=json&q=${encodeURIComponent(q)}&limit=5`, {
+      headers: { 'Accept-Language': 'uk,en' }
+    });
+    const data = await res.json();
+    if (!data.length) { box.style.display = 'none'; return; }
+    box.innerHTML = data.map(it => {
+      const parts = it.display_name.split(',');
+      const name  = parts[0].trim();
+      const sub   = parts.slice(1, 3).join(',').trim();
+      return `<div class="sug-item" onclick="pickSug('${side}',${it.lat},${it.lon},\`${name.replace(/`/g, "'")}\`)">
+        <strong>${name}</strong><small>${sub}</small>
+      </div>`;
+    }).join('');
+    positionSug(inp, box);
+    box.style.display = 'block';
+  } catch(_) { box.style.display = 'none'; }
+}
+
+function pickSug(side, lat, lon, name) {
+  const ll = [parseFloat(lat), parseFloat(lon)];
+  if      (side === 'from')        fromLL = ll;
+  else if (side === 'to')          toLL   = ll;
+  else if (side.startsWith('wp-')) waypointLLs[parseInt(side.slice(3))] = ll;
+  document.getElementById('r-' + side).value = name;
+  document.getElementById('sug-' + side).style.display = 'none';
+}
+
+document.addEventListener('click', e => {
+  if (!e.target.closest('.ri-row') && !e.target.closest('.sug-box'))
+    document.querySelectorAll('.sug-box').forEach(b => b.style.display = 'none');
+});
+
+window.addEventListener('scroll', () => {
+  document.querySelectorAll('.sug-box').forEach(box => {
+    if (box.style.display === 'none') return;
+    const side = box.id.replace('sug-', '');
+    const inp  = document.getElementById('r-' + side);
+    if (inp) positionSug(inp, box);
+  });
+}, { passive: true });
+
+function initMap() {
+  if (map) return;
+  document.getElementById('map').style.display = 'block';
+  map = L.map('map').setView([49.0, 31.5], 6);
+  const theme = document.documentElement.getAttribute('data-theme');
+  tileLayer = L.tileLayer(theme === 'light' ? LIGHT_TILES : DARK_TILES, {
+    attribution: TILE_ATTR, subdomains: 'abcd', maxZoom: 19
+  }).addTo(map);
+}
+
+async function geocode(q) {
+  const r = await fetch(`${NOM}/search?format=json&q=${encodeURIComponent(q)}&limit=1`, {
+    headers: { 'Accept-Language': 'uk,en' }
+  });
+  const d = await r.json();
+  if (!d.length) throw new Error('not found');
+  return [parseFloat(d[0].lat), parseFloat(d[0].lon)];
+}
+
+function setStatus(type, msg) {
+  document.getElementById('r-status').innerHTML = msg
+    ? `<div class="status ${type}">${msg}</div>` : '';
+}
+
+async function doRoute() {
+  const btn = document.getElementById('r-btn');
+  setStatus('', '');
+
+  if (!fromLL) {
+    const q = document.getElementById('r-from').value.trim();
+    if (!q) { setStatus('err', 'Введіть початкову точку'); return; }
+    setStatus('inf', 'Пошук початкової точки…');
+    try { fromLL = await geocode(q); }
+    catch(_) { setStatus('err', 'Початкову точку не знайдено. Виберіть із підказок.'); return; }
+  }
+
+  // геокодуємо проміжні точки у порядку їх розміщення в DOM
+  const wpRows = [...document.querySelectorAll('#wp-container .ri-row')];
+  for (const row of wpRows) {
+    const idx = parseInt(row.id.slice(6)); // ri-wp-N
+    if (!waypointLLs[idx]) {
+      const q = document.getElementById(`r-wp-${idx}`)?.value.trim();
+      if (q) {
+        setStatus('inf', `Пошук проміжної точки…`);
+        try { waypointLLs[idx] = await geocode(q); }
+        catch(_) { setStatus('err', `Проміжну точку не знайдено: «${q}»`); return; }
+      }
+    }
+  }
+
+  if (!toLL) {
+    const q = document.getElementById('r-to').value.trim();
+    if (!q) { setStatus('err', 'Введіть кінцеву точку'); return; }
+    setStatus('inf', 'Пошук кінцевої точки…');
+    try { toLL = await geocode(q); }
+    catch(_) { setStatus('err', 'Кінцеву точку не знайдено. Виберіть із підказок.'); return; }
+  }
+
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spin"></span>Розрахунок маршруту…';
+  setStatus('inf', 'Будуємо маршрут…');
+
+  try {
+    initMap();
+
+    // збираємо всі точки у порядку DOM
+    const allPoints = [
+      fromLL,
+      ...wpRows.map(r => waypointLLs[parseInt(r.id.slice(6))]).filter(Boolean),
+      toLL,
+    ];
+    const coordStr = allPoints.map(ll => `${ll[1]},${ll[0]}`).join(';');
+    const url  = `${OSRM}/${coordStr}?overview=full&geometries=geojson`;
+    const res  = await fetch(url);
+    const data = await res.json();
+    if (!data.routes?.length) throw new Error('not found');
+
+    const route  = data.routes[0];
+    const distKm = (route.distance / 1000).toFixed(1);
+    const coords  = route.geometry.coordinates.map(c => [c[1], c[0]]);
+
+    if (routeLine) map.removeLayer(routeLine);
+    routeLine = L.polyline(coords, { color: '#E85D04', weight: 4.5, opacity: 0.9 }).addTo(map);
+
+    const mkIcon = (color) => L.divIcon({
+      html: `<div style="width:14px;height:14px;border-radius:50%;background:${color};border:2px solid #fff;box-shadow:0 0 8px ${color}bb"></div>`,
+      className: '', iconSize: [14,14], iconAnchor: [7,7]
+    });
+    L.marker(fromLL, { icon: mkIcon('#00D47E') }).addTo(map)
+      .bindPopup('<b>Старт:</b> ' + document.getElementById('r-from').value);
+    wpRows.forEach(r => {
+      const idx = parseInt(r.id.slice(6));
+      const ll  = waypointLLs[idx];
+      if (ll) L.marker(ll, { icon: mkIcon('#FFB347') }).addTo(map)
+        .bindPopup('<b>Зупинка:</b> ' + (document.getElementById(`r-wp-${idx}`)?.value || ''));
+    });
+    L.marker(toLL, { icon: mkIcon('#E85D04') }).addTo(map)
+      .bindPopup('<b>Фініш:</b> ' + document.getElementById('r-to').value);
+
+    map.fitBounds(routeLine.getBounds(), { padding: [32, 32] });
+    setTimeout(() => map.invalidateSize(), 80);
+
+    const rate  = parseFloat(document.getElementById('c-rate').value)  || 0;
+    const price = parseFloat(document.getElementById('c-price').value) || 0;
+
+    document.getElementById('rs-km').textContent = distKm;
+    document.getElementById('c-dist').value = distKm;
+    doCalc();
+    document.getElementById('rs-lt').textContent = rate  > 0 ? (distKm * rate / 100).toFixed(2) : '—';
+    document.getElementById('rs-ua').textContent = (rate > 0 && price > 0)
+      ? Math.round(distKm * rate / 100 * price) : '—';
+
+    document.getElementById('route-results').style.display = 'block';
+    setStatus('', '');
+
+  } catch(_) {
+    setStatus('err', 'Не вдалося побудувати маршрут. Перевірте назви або спробуйте пізніше.');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Розрахувати маршрут';
+  }
+}
+
+// ══════════════════════════════════════
+//  SHARE
+// ══════════════════════════════════════
+function getShareURL() {
+  const p = new URLSearchParams();
+  const v = id => document.getElementById(id)?.value || '';
+
+  p.set('m', calcMode);
+  if (calcMode === 1 && v('c-dist'))   p.set('d',  v('c-dist'));
+  if (calcMode === 2 && v('c-budget')) p.set('b',  v('c-budget'));
+  if (calcMode === 3 && v('c-fuelin')) p.set('fi', v('c-fuelin'));
+  if (v('c-rate'))  p.set('r',  v('c-rate'));
+  if (v('c-tank'))  p.set('t',  v('c-tank'));
+  if (v('c-price')) p.set('fp', v('c-price'));
+
+  const pill = document.querySelector('.pill.on');
+  if (pill) p.set('ft', pill.textContent.trim());
+
+  p.set('th', document.documentElement.getAttribute('data-theme') || 'dark');
+
+  const routeOpen = document.getElementById('routeCollapse').classList.contains('open');
+  if (routeOpen) p.set('ro', '1');
+
+  if (v('r-from')) p.set('rf', v('r-from'));
+  if (v('r-to'))   p.set('rt', v('r-to'));
+  if (fromLL) p.set('rfl', fromLL.join(','));
+  if (toLL)   p.set('rtl', toLL.join(','));
+
+  const wpRows = [...document.querySelectorAll('#wp-container .ri-row')];
+  if (wpRows.length) {
+    const names = wpRows.map(row => {
+      const idx = parseInt(row.id.slice(6));
+      return document.getElementById('r-wp-' + idx)?.value || '';
+    });
+    const lls = wpRows.map(row => {
+      const idx = parseInt(row.id.slice(6));
+      return waypointLLs[idx] ? waypointLLs[idx].join(',') : '';
+    });
+    p.set('rw',  names.join('|'));
+    p.set('rwl', lls.join('|'));
+  }
+
+  return location.href.split('?')[0] + '?' + p.toString();
+}
+
+async function shareCalc() {
+  const url = getShareURL();
+  const btn = document.getElementById('shareBtn');
+  let copied = false;
+
+  if (navigator.clipboard && window.isSecureContext) {
+    try {
+      await navigator.clipboard.writeText(url);
+      copied = true;
+    } catch (_) { /* fall through */ }
+  }
+
+  if (!copied) {
+    const ta = document.createElement('textarea');
+    ta.value = url;
+    ta.style.cssText = 'position:fixed;top:0;left:0;width:1px;height:1px;opacity:0;pointer-events:none';
+    document.body.appendChild(ta);
+    ta.focus();
+    ta.select();
+    try { copied = document.execCommand('copy'); } catch (_) {}
+    document.body.removeChild(ta);
+  }
+
+  if (copied) {
+    btn.classList.add('copied');
+    setTimeout(() => btn.classList.remove('copied'), 2000);
+    showToast('Посилання скопійовано');
+  } else {
+    prompt('Скопіюйте посилання:', url);
+  }
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._t);
+  t._t = setTimeout(() => t.classList.remove('show'), 2600);
+}
+
+// ── Відновлення стану з URL ──
+function applyURLParams() {
+  const p = new URLSearchParams(location.search);
+  if (![...p.keys()].length) return;
+
+  const v = id => document.getElementById(id);
+
+  if (p.has('th')) applyTheme(p.get('th'));
+
+  if (p.has('ft')) {
+    const ft = p.get('ft');
+    document.querySelectorAll('.pill').forEach(btn => {
+      if (btn.textContent.trim() === ft) pickFuel(btn);
+    });
+  }
+  if (p.has('fp') && v('c-price')) v('c-price').value = p.get('fp');
+  if (p.has('r')  && v('c-rate'))  v('c-rate').value  = p.get('r');
+  if (p.has('t')  && v('c-tank'))  v('c-tank').value  = p.get('t');
+  if (p.has('d')  && v('c-dist'))  v('c-dist').value  = p.get('d');
+  if (p.has('b')  && v('c-budget')) v('c-budget').value = p.get('b');
+  if (p.has('fi') && v('c-fuelin')) v('c-fuelin').value = p.get('fi');
+
+  const mode = parseInt(p.get('m')) || 1;
+  setCalcMode(mode);
+
+  if (p.has('rf') && v('r-from')) v('r-from').value = p.get('rf');
+  if (p.has('rt') && v('r-to'))   v('r-to').value   = p.get('rt');
+  if (p.has('rfl')) {
+    const parts = p.get('rfl').split(',').map(Number);
+    if (!isNaN(parts[0])) fromLL = parts;
+  }
+  if (p.has('rtl')) {
+    const parts = p.get('rtl').split(',').map(Number);
+    if (!isNaN(parts[0])) toLL = parts;
+  }
+
+  if (p.has('rw') && p.has('rwl')) {
+    const names = p.get('rw').split('|');
+    const lls   = p.get('rwl').split('|');
+    names.forEach((name, i) => {
+      addWaypoint();
+      const idx = waypointCount - 1;
+      const inp = document.getElementById('r-wp-' + idx);
+      if (inp) inp.value = name;
+      const llParts = lls[i] ? lls[i].split(',').map(Number) : [];
+      if (llParts.length === 2 && !isNaN(llParts[0])) waypointLLs[idx] = llParts;
+    });
+  }
+
+  if (p.has('ro')) {
+    const block = document.getElementById('routeCollapse');
+    block.classList.add('open');
+    block.querySelector('.rc-header').setAttribute('aria-expanded', 'true');
+    if (fromLL && toLL) setTimeout(() => doRoute(), 500);
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  applyURLParams();
+  const el = document.getElementById('footer-copy-text');
+  if (el) {
+    const y = new Date().getFullYear();
+    el.textContent = y > 2026 ? `© 2026–${y}` : '© 2026';
+  }
+});
+</script>
+</body>
+</html>

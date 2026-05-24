@@ -1,0 +1,23 @@
+<svg viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="56" height="56" rx="13" fill="#E85D04"/>
+  <!-- Pump body -->
+  <rect x="9" y="8" width="23" height="37" rx="5" fill="white"/>
+  <!-- Screen -->
+  <rect x="13" y="12" width="15" height="10" rx="2.5" fill="#E85D04"/>
+  <!-- Screen inner highlights -->
+  <rect x="15" y="14" width="9" height="2.5" rx="1.25" fill="white" opacity=".35"/>
+  <rect x="15" y="18" width="6" height="2" rx="1" fill="white" opacity=".25"/>
+  <!-- Info lines (price/data display) -->
+  <rect x="13" y="26" width="15" height="2.5" rx="1.25" fill="#E85D04"/>
+  <rect x="13" y="30" width="9.5" height="2.5" rx="1.25" fill="#E85D04"/>
+  <rect x="13" y="34" width="12" height="2.5" rx="1.25" fill="#E85D04"/>
+  <!-- Nozzle hook: horizontal arm + J-curve + hang -->
+  <path d="M32 13.5 L44 13.5 Q47 13.5 47 16.5 L47 28 Q47 32 43 32 L40 32 Q36 32 36 28 L36 21 Q36 18.5 33 18.5 L32 18.5 Z" fill="white"/>
+  <!-- Nozzle tip -->
+  <path d="M40.5 32 L42.5 32 L43.5 39 Q43.5 41 42 41 Q40.5 41 40.5 39 Z" fill="white"/>
+  <!-- Fuel drop -->
+  <path d="M42 41 C42 41 40 43.5 40 44.8 C40 46 40.9 47 42 47 C43.1 47 44 46 44 44.8 C44 43.5 42 41 42 41 Z" fill="white"/>
+  <!-- Base plate -->
+  <rect x="7" y="45" width="27" height="4" rx="2" fill="white"/>
+</svg>
